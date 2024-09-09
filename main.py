@@ -19,17 +19,18 @@ print("right click, and select 'Copy as path'")
 RInput = input("File path: ").replace('"', '') + '\\'
 
 
-def indivFormatter(initial, directory):
-    accession = str(directory.split('\\')[-2]).rpartition('_')[2] + '_'
-    name = initial + str(directory.split('\\')[-2]).rpartition('_')[0]
-
+def convertToJPG(directory):
+    print(directory)
     for filename in os.listdir(directory):
         image = Image.open(os.path.join(directory, filename))
         image.convert('RGB').save(os.path.join(directory, os.path.splitext(filename)[0] + '.jpg'))
-
-    for filename in os.listdir(directory):
         if os.path.splitext(filename)[1] == '.HEIC':
             os.remove(os.path.join(directory, filename))
+
+
+def namePics(directory, initials):
+    accession = str(directory.split('\\')[-2]).rpartition('_')[2] + '_'
+    name = initials + str(directory.split('\\')[-2]).rpartition('_')[0]
 
     i = 0
     for filename in os.listdir(directory):
@@ -41,6 +42,11 @@ def indivFormatter(initial, directory):
         if filename.split('_')[1] == '0':
             label_name = filename.replace('_0_', '_Label_')
             os.rename(os.path.join(directory, filename), os.path.join(directory, label_name))
+            
+
+def indivFormatter(directory, initials):
+    convertToJPG(directory)
+    namePics(directory, initials)
 
 
 def massFormatter(initial, folder):
@@ -54,7 +60,7 @@ def massFormatter(initial, folder):
         for item in os.listdir(folder):
             indivFormatter(initial, (os.path.join(folder, item) + '\\'))
     elif not any(checkr):
-        indivFormatter(initial, folder)
+        indivFormatter(folder, initial)
 
 
 massFormatter(RInitial, RInput)

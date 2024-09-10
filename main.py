@@ -3,7 +3,10 @@
 import os
 from PIL import Image
 from pillow_heif import register_heif_opener
+import pytesseract
 
+
+pytesseract.pytesseract.tesseract_cmd = r"C://Users//arman//UCbot-ImageFormatter//Tesseract-OCR//tesseract.exe"
 register_heif_opener()
 
 
@@ -20,12 +23,15 @@ RInput = input("File path: ").replace('"', '') + '\\'
 
 
 def convertToJPG(directory):
-    print(directory)
     for filename in os.listdir(directory):
         image = Image.open(os.path.join(directory, filename))
         image.convert('RGB').save(os.path.join(directory, os.path.splitext(filename)[0] + '.jpg'))
         if os.path.splitext(filename)[1] == '.HEIC':
             os.remove(os.path.join(directory, filename))
+
+def readTag(directory):
+    for filename in os.listdir(directory):
+        print(pytesseract.image_to_string(Image.open(os.path.join(directory, filename))))
 
 
 def namePics(directory, initials):
@@ -45,8 +51,9 @@ def namePics(directory, initials):
             
 
 def indivFormatter(directory, initials):
-    convertToJPG(directory)
-    namePics(directory, initials)
+    # convertToJPG(directory)
+    readTag(directory)
+    # namePics(directory, initials)
 
 
 def massFormatter(initial, folder):

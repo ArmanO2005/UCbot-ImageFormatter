@@ -23,6 +23,33 @@ print("your file. To find the file path of your file, go to the file you want to
 print("right click, and select 'Copy as path'")
 RInput = input("File path: ").replace('"', '') + '\\'
 
+# class accessionTag():
+#     def __init__ (self):
+#         self.lower_bound = np.array([69, 69, 69]) #BGR
+#         self.upper_bound = np.array([184, 156, 166]) #BGR
+
+
+class accessionTag():
+    def __init__ (self):
+        self.lower_bound = np.array([0, 0, 0]) #BGR
+        self.upper_bound = np.array([112, 106, 107]) #BGR
+
+
+def readTag(directory):
+    for filename in os.listdir(directory):
+        img = cv2.imread(os.path.join(directory, filename))
+        accessionMask = cv2.inRange(img, accessionTag().lower_bound, accessionTag().upper_bound)
+        low_res_mask = cv2.resize(accessionMask, (int(accessionMask.shape[0] / 4), int(accessionMask.shape[1] / 4)))
+
+        print(pytesseract.image_to_string(low_res_mask, config="--psm 3"))
+        print(pytesseract.image_to_string(low_res_mask, config='digits'))
+
+        cv2.imshow('mask', low_res_mask)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        
+        
+
 
 def convertToJPG(directory):
     for filename in os.listdir(directory):
@@ -30,24 +57,6 @@ def convertToJPG(directory):
         image.convert('RGB').save(os.path.join(directory, os.path.splitext(filename)[0] + '.jpg'))
         if os.path.splitext(filename)[1] == '.HEIC':
             os.remove(os.path.join(directory, filename))
-
-def readTag(directory):
-    for filename in os.listdir(directory):
-        # print(pytesseract.image_to_string(Image.open(os.path.join(directory, filename)), config="--psm 11"))
-        img = cv2.imread(os.path.join(directory, filename))
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        ret,thresh = cv2.threshold(gray,50,255,0)
-        contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        img_area = img.shape[0] * img.shape[1]
-
-        for cnt in contours:
-            perimeter = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.02 * perimeter, True)
-            if len(approx) == 4:
-                area = cv2.contourArea(cnt)
-                if area > 0.85 * img_area:
-                    print(True)
-                    print(filename)
 
 
 def namePics(directory, initials):
@@ -67,7 +76,7 @@ def namePics(directory, initials):
             
 
 def indivFormatter(directory, initials):
-    convertToJPG(directory)
+    # convertToJPG(directory)
     readTag(directory)
     # namePics(directory, initials)
 
